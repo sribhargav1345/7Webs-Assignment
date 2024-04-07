@@ -1,0 +1,52 @@
+import express from 'express';
+const router = express.Router();
+
+import Availability from '../models/Availability.js';
+import { availabilityValidation, validateAvailability } from '../middleware/validateAvailability.js';
+
+router.post("/availability", availabilityValidation, validateAvailability, async (req, res) => {
+
+    try {
+        const { day, slots } = req.body;
+        const newAvailability = new Availability({ day, slots });
+
+        await newAvailability.save();
+        res.json({ success: true, message: "Availability set successfully" });
+    } 
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// I have made this, like if user gives specific date -> this will convert it into the week day and return it's slots
+router.get("/availability/:required_date", async (req, res) => {
+
+    try {
+        const requestedDate = req.params.required_date;
+
+        if (!requestedDate) {
+            return res.status(400).json({ error: "Missing required parameter: date" });
+        }
+
+        if (!isValid(new Date(requestedDate))) {
+            return res.status(400).json({ error: "Invalid date format" });
+        }
+
+        const date = new Date(requestedDate);
+        const dayOfWeek = date.getDay(); 
+
+        const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
+
+        const availabilities = await Availability.find({ day: weekday });
+
+        res.json({ date, availabilities }); 
+    } 
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+  
+
+export { router as Availability };
