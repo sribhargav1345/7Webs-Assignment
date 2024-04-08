@@ -2,7 +2,7 @@ import express from 'express';
 const router = express.Router();
 
 import Availability from '../models/Availability.js';
-import { availabilityValidation, validateAvailability } from '../middleware/validateAvailability.js';
+import { availabilityValidation, validateAvailability } from '../middleware/ValidateAvailability.js';
 
 router.post("/availability", availabilityValidation, validateAvailability, async (req, res) => {
 
