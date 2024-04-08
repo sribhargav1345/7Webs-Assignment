@@ -15,6 +15,10 @@ const slotSchema = new mongoose.Schema({
         type: Number, 
         required: true,
         min: 1
+    },
+    currentCapacity: { 
+        type: Number,
+        default: 0
     }
 });
 

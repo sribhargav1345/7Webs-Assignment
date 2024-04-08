@@ -4,20 +4,34 @@ const router = express.Router();
 import Availability from '../models/Availability.js';
 import { availabilityValidation, validateAvailability } from '../middleware/validateAvailability.js';
 
+// If that day is present, update the slots in that day, dont add again.
 router.post("/availability", availabilityValidation, validateAvailability, async (req, res) => {
 
     try {
         const { day, slots } = req.body;
-        const newAvailability = new Availability({ day, slots });
 
-        await newAvailability.save();
-        res.json({ success: true, message: "Availability set successfully" });
+        let existingAvailability = await Availability.findOne({ day });
+
+        if (existingAvailability) {
+
+            existingAvailability.slots = slots;
+            await existingAvailability.save();
+
+            return res.json({ success: true, message: "Availability updated successfully" });
+        } 
+        else {
+
+            const newAvailability = new Availability({ day, slots });
+            await newAvailability.save();
+            return res.json({ success: true, message: "Availability set successfully" });
+        }
     } 
     catch (err) {
         console.error(err);
         res.status(500).json({ error: "Server error" });
     }
 });
+
 
 // I have made this, like if user gives specific date -> this will convert it into the week day and return it's slots
 router.get("/availability/:required_date", async (req, res) => {
