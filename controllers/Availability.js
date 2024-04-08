@@ -4,13 +4,12 @@ const router = express.Router();
 import Availability from '../models/Availability.js';
 import { availabilityValidation, validateAvailability } from '../middleware/validateAvailability.js';
 
-// If that day is present, update the slots in that day, dont add again.
 router.post("/availability", availabilityValidation, validateAvailability, async (req, res) => {
 
     try {
         const { day, slots } = req.body;
 
-        let existingAvailability = await Availability.findOne({ day });
+        let existingAvailability = await Availability.findOne({ day });                     // If that day is present, update the slots in that day, dont add again.
 
         if (existingAvailability) {
 
@@ -43,11 +42,12 @@ router.get("/availability/:required_date", async (req, res) => {
             return res.status(400).json({ error: "Missing required parameter: date" });
         }
 
-        if (!isValid(new Date(requestedDate))) {
+        const date = new Date(requestedDate);
+
+        if (isNaN(date.getTime())) {
             return res.status(400).json({ error: "Invalid date format" });
         }
 
-        const date = new Date(requestedDate);
         const dayOfWeek = date.getDay(); 
 
         const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dayOfWeek];
