@@ -19,6 +19,10 @@ app.use(helmet());
 
 mongoDB();
 
+app.get('/', (req, res) => {
+  res.send("For testing GET operation, go to the endpoint: /api/availability/2024-05-11");
+});
+
 app.use('/api', userAuthRoutes);
 app.use('/api', Availability);
 app.use('/api', Schedules);
